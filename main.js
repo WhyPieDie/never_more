@@ -1,4 +1,5 @@
 const Telegraf = require('telegraf');
+const fs = require('fs');
 
 bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -10,7 +11,7 @@ bot.help(context => context.reply('хелпи не буде'));
 
 bot.on('message', (context, next) => {
     return next(context).then(() => {
-    context.reply(context.message.text + 'asdasd');
+    //context.reply(context.message.text + 'asdasd');
 })
 });
 
@@ -40,3 +41,8 @@ bot.command('stop', (context) => {
         console.log(context);
         process.exit(1)
 })})
+
+bot.command('pasta', (context) => {
+    let file = fs.readFileSync('./ubludok.txt', 'utf8');
+    context.reply(file);
+})

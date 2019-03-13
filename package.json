@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/WhyPieDie/never_more_bot#readme",
   "devDependencies": {
+    "mongodb": "^3.1.13",
     "telegraf": "^3.27.1"
   }
 }

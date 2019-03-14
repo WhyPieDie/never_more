@@ -1,0 +1,9 @@
+{
+    "BOT_TOKEN" : "688036917:AAH2eFEB1AUJk5jlQibWhcVmBzqVsYmYVIk",
+    "db_public_key" : "nxrrspmp",
+    "db_private_key" : "2b4da27d-96a9-46fb-b287-2e144e220fca",
+    "db_user" : "dev_user",
+    "db_password" : "Password1",
+    "db_name" : "nevermore",
+    "db_collection" : "phrases"
+}

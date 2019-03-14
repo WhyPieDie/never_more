@@ -42,6 +42,28 @@ class Db {
         let document = await collection.findOne({});
         return document.phrases;
     }
+
+    async get_phrases_by_id(collection, id) {
+        let document = await collection.findOne({});
+        let phrases = document.fullData.filter(data => data.user.id === id).map(data => data.phrase);
+        return phrases;
+    }
+
+    async delete_phrases_by_id(collection, id, index) {
+        let coll = await this.populate_collection(collection);
+        let doc = await coll.findOne({});
+        let user_data = doc.fullData.filter(data => data.user.id === id);
+        if(index > user_data.length) {
+            return false;
+        }
+        let item = user_data[index];
+        let data_index = doc.fullData.findIndex((val) => val.phrase === item.phrase);
+        let phrase_index = doc.phrases.findIndex((val) => val === item.phrase);
+        doc.fullData.splice(data_index, 1);
+        doc.phrases.splice(phrase_index, 1);
+        await collection.findOneAndReplace({}, doc);
+        return true;
+    }
 };
 
 module.exports = Db;

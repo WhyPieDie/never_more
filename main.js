@@ -71,11 +71,16 @@ bot.on('message', async (context, next) => {
     return next(context);
 });
 
+let trim_commands = (text, entities) => {
+    let bot_commands_length = entities.slice(-1)[0].length + 1;
+    //remove commands
+    return text.substring(bot_commands_length);
+}
+
 bot.command(['new', 'add'], async (context, next) => {
     console.log('------> /new handler');
-    let bot_commands_length = context.message.entities.slice(-1)[0].length + 1;
     //remove commands
-    let message_text = context.message.text.substring(bot_commands_length);
+    let message_text = trim_commands(context.message.text, context.message.entities);
     //remove phrase
     message_text = trim_phrase(message_text);
 
@@ -104,7 +109,27 @@ bot.command('all', async context => {
 bot.command('my', async context => {
     console.log('------> my handler');
     let collection = await db.populate_collection();
+    let my_id = context.from.id;
+    let phrases = await db.get_phrases_by_id(collection, my_id);
+    let response_text = phrases.map((ph, index) => index + ': ' + phrase + ph + '\n').join('');
+    context.reply(response_text);
+})
 
+bot.command('drop', async context => {
+    console.log('------> drop handler');
+    let message_text = trim_commands(context.message.text, context.message.entities);
+    let re = /@([0-9]*)/;
+    let index = (+re.exec(message_text)[1]);
+    let collection = await db.populate_collection();
+    let my_id = context.from.id;
+    let phrases = await db.get_phrases_by_id(collection, my_id);
+    if(index < phrases.length) {
+        await db.delete_phrases_by_id(collection, my_id, index);
+        context.reply('dropped ' + phrases[index]);
+    }
+    else {
+        context.reply('out of range');
+    }
 })
 
 bot.command('wtf', context => {

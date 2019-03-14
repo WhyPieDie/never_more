@@ -1,6 +1,7 @@
 const Telegraf = require('telegraf');
+const Extra = require('telegraf/extra');
+const Markup = require('telegraf/markup');
 const Fs = require('fs');
-const MongoClient = require('mongodb').MongoClient;
 const Db = require('./db');
 
 const config = require('./config.json');
@@ -35,7 +36,6 @@ bot.use((context, next) => {
     console.log(context.message);
     return next(context);
 });
-bot.start(context => context.reply('Шалом!'));
 
 bot.help(context => context.reply('хелпи не буде!'));
 
@@ -52,6 +52,9 @@ bot.on('message', async (context, next) => {
     }
 
     console.log('------> message handler');
+    if(!context.message.text.startsWith(phrase)) {
+        return;
+    }
     let action = trim_phrase(context.message.text);
     
     if(action.length > 0) {
@@ -137,20 +140,95 @@ bot.command('wtf', context => {
     context.reply('the fuck?');
 })
 
-
-//let launch = bot.launch((ctx) => ctx.reply('running...'));
-bot.command('stop', (context) => {
-    console.log(launch);
-    launch.then(() => {
-        console.log(context.message.from.id);
-        console.log(context.message.chat.id);
-        console.log(context);
-        process.exit(1)
-})})
-
 bot.command('pasta', (context) => {
     let file = Fs.readFileSync('./ubludok.txt', 'utf8');
     context.reply(file);
+})
+
+let shuffle = (a) => {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
+}
+
+const markup = Markup.inlineKeyboard([
+    Markup.callbackButton('stop', 'stop_action'),
+    Markup.callbackButton('next', 'next_action')
+]).extra();
+
+bot.start(async context => {
+    if(bot.state && bot.state.running) {
+        context.reply('already started, please /stop me');
+    }
+    //init
+    let collection = await db.populate_collection();
+    let phrases = await db.get_phrases(collection);
+    phrases = shuffle(phrases);
+    bot.state = {running: true, phrases : phrases};
+    //get 1st
+    if(bot.state.phrases.length === 0) {
+        bot.state = {running: false};
+        context.reply('no more messages');
+        return;        
+    }
+    bot.state.current = phrase + bot.state.phrases.pop();
+    context.telegram.sendMessage(context.chat.id, bot.state.current, markup);
+    
+});
+
+let next_handler = context => {
+    console.log('-----> next handler')
+    if(bot.state && bot.state.running) {
+        if(bot.state.phrases.length === 0) {
+            bot.state = {running: false};
+            context.reply('no more messages');
+            return;        
+        }
+        bot.state.current = phrase + bot.state.phrases.pop();
+        context.telegram.sendMessage(context.chat.id, bot.state.current, markup);
+    }
+    else {
+        context.reply('/start me please');
+    }
+}
+
+bot.command('next', next_handler);
+bot.action('next_action', next_handler);
+
+let stop_handler = context => {
+    console.log('-----> stop handler')
+    if(bot.state && bot.state.running) {
+        bot.state = {running: false};
+        context.reply('stopped');
+    }
+    else {
+        context.reply('why stop me? i wasn\'t running anyway :\'(');
+    }
+}
+
+bot.command('stop', stop_handler);
+bot.action('stop_action', stop_handler);
+
+bot.on('callback_query', context => {
+    console.log('-----> callback query');
+    let query_data = context.update.callback_query.data;
+    if(query_data == '/next_action') {
+        return next_handler(context);
+    }
+    if(query_data == '/stop_action') {
+        return stop_handler(context);
+    }
+})
+
+bot.on('inline_query', context => {
+    console.log('-----> inline query');
+    console.log(context);
+    
 })
 
 //let launch = bot.launch((ctx) => ctx.reply('running...'));

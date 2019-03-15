@@ -4,7 +4,7 @@
   "description": "telegram bot",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "node bot.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,8 +17,10 @@
     "url": "https://github.com/WhyPieDie/never_more_bot/issues"
   },
   "homepage": "https://github.com/WhyPieDie/never_more_bot#readme",
-  "devDependencies": {
+  "dependencies": {
     "mongodb": "^3.1.13",
-    "telegraf": "^3.27.1"
+    "telegraf": "^3.27.1",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4"
   }
 }

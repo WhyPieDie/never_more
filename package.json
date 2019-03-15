@@ -18,9 +18,10 @@
   },
   "homepage": "https://github.com/WhyPieDie/never_more_bot#readme",
   "dependencies": {
-    "mongodb": "^3.1.13",
-    "telegraf": "^3.27.1",
     "body-parser": "^1.18.3",
-    "express": "^4.16.4"
+    "dotenv": "^7.0.0",
+    "express": "^4.16.4",
+    "mongodb": "^3.1.13",
+    "telegraf": "^3.27.1"
   }
 }

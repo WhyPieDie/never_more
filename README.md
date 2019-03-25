@@ -1,2 +1,1 @@
-# never_more_bot
-bot for telegram
+this readme is no longer valid.

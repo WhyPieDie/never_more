@@ -141,7 +141,7 @@ bot.command('wtf', context => {
 })
 
 bot.command('pasta', (context) => {
-    let file = Fs.readFileSync('./ubludok.txt', 'utf8');
+    let file = Fs.readFileSync('./resources/ubludok.txt', 'utf8');
     context.reply(file);
 })
 

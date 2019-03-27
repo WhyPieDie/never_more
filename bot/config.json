@@ -5,5 +5,6 @@
     "db_user" : "dev_user",
     "db_password" : "Password1",
     "db_name" : "nevermore",
-    "db_collection" : "phrases"
+    "db_collection" : "phrases",
+    "app_url" : "https://never-more-bot.herokuapp.com/"
 }

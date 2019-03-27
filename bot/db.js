@@ -1,8 +1,5 @@
-const MongoClient = require('mongodb').MongoClient;
-
 const config = require('./config.json');
-const uri = `mongodb+srv://${config.db_user}:${config.db_password}@nevermore0-d6rtm.gcp.mongodb.net`;
-
+const MongoClient = require('mongodb').MongoClient;
 
 //bad design ahead!!
 class Db {
@@ -12,14 +9,21 @@ class Db {
         this.collection_name = collection;
     }
 
-    async get_collection() {
+    async unsafe_get_collection() {
         return await this.client.connect()
             .then(client => client.db(this.db_name))
             .then(db => db.collection(this.collection_name));
     }
 
+    async get_collection() {
+        return this.populate_collection();
+    }
+
+    /* 
+    @deprecated; move to get_collection()
+    */
     async populate_collection () {
-        let collection = await this.get_collection();
+        let collection = await this.unsafe_get_collection();
         let count = await collection.countDocuments();
         if(count == 0) {
             let entity = {
@@ -69,9 +73,12 @@ class Db {
 module.exports = Db;
 
 async function example() {
+    const uri = config.db_uri_template
+        .replace('$user', config.db_user)
+        .replace('$password', db_password);
     let db = new Db(uri, config.db_name, config.db_collection);
     
-    let coll = await db.populate_collection();
+    let coll = await db.get_collection();
     let doc = await db.insert(coll, {a: 'b'}, 'asdasdasd');
 
     let phrases = await db.get_phrases(coll);

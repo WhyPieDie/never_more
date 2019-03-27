@@ -5,7 +5,9 @@ const Fs = require('fs');
 const Db = require('./db');
 
 const config = require('./config.json');
-const uri = `mongodb+srv://${config.db_user}:${config.db_password}@nevermore0-d6rtm.gcp.mongodb.net`;
+const uri = config.db_uri_template
+    .replace('$user', config.db_user)
+    .replace('$password', config.db_password);
 const phrase = 'я ніколи не '.toLowerCase();
 
 let create_entity = (ctx, msg) => {

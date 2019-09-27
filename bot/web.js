@@ -9,7 +9,7 @@ const app = express();
 app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
-  res.json(200, { version: packageInfo.version });
+  res.json({ version: packageInfo.version });
 });
 
 app.get('/phrases', async function (req, res) {

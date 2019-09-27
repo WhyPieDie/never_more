@@ -54,25 +54,30 @@ bot.on('message', async (context, next) => {
     }
 
     console.log('------> message handler');
-    if(!context.message.text.startsWith(phrase)) {
+    let handled = false;
+    if(context.message.text.startsWith(phrase)) {
+        let action = trim_phrase(context.message.text);
+    
+        if(action.length > 0) {
+
+            context.reply('Додано : ' + action);
+            let entity = create_entity(context, action);
+            let col = await db.get_collection();
+            let phrases = await db.get_phrases(col);
+            if(phrases.indexOf(action) != -1) {
+                context.reply('вже є таке!');
+                return next(context);
+            }
+            db.insert(col, entity, action);
+            console.log('inserted');
+            console.log(entity);
+        }
+        handled = true;
+    }
+    else {
         return;
     }
-    let action = trim_phrase(context.message.text);
     
-    if(action.length > 0) {
-
-        context.reply('added: ' + action);
-        let entity = create_entity(context, action);
-        let col = await db.get_collection();
-        let phrases = await db.get_phrases(col);
-        if(phrases.indexOf(action) != -1) {
-            context.reply('вже є таке!');
-            return next(context);
-        }
-        db.insert(col, entity, action);
-        console.log('inserted');
-        console.log(entity);
-    }
     return next(context);
 });
 
@@ -98,7 +103,7 @@ bot.command(['new', 'add'], async (context, next) => {
             return next(context);
         }
         db.insert(col, entity, message_text);
-        context.reply('added : ' + phrase + message_text);
+        context.reply('додано : ' + phrase + message_text);
     }
 })
 
@@ -130,16 +135,16 @@ bot.command('drop', async context => {
     let phrases = await db.get_phrases_by_id(collection, my_id);
     if(index < phrases.length) {
         await db.delete_phrases_by_id(collection, my_id, index);
-        context.reply('dropped ' + phrases[index]);
+        context.reply('видалено : ' + phrases[index]);
     }
     else {
-        context.reply('out of range');
+        context.reply('некоректний індекс');
     }
 })
 
 bot.command('wtf', context => {
     console.log('wtf');
-    context.reply('the fuck?');
+    context.reply('..?');
 })
 
 bot.command('pasta', (context) => {
